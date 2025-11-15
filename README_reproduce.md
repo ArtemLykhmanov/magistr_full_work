@@ -84,33 +84,57 @@ python experiments/eval_cross_many.py --scenario cross_dataset --target-fpr 0.01
 # 1) UNSW: CV on train + test (models as in current out/unsw)
 python experiments/eval_cross_many.py --scenario unsw_cv_test --target-fpr 0.01 --outdir out/unsw --models rf,mlp,hgb,rf_cal,xgb
 
-# 1b) UNSW repro-check run for RF only (writes to out/unsw_reprocheck)
-python experiments/eval_cross_many.py --scenario unsw_cv_test --target-fpr 0.01 --outdir out/unsw_reprocheck --models rf
+# 1b) UNSW repro-check run for RF only (writes to out_check/unsw_cv_test)
+python experiments/eval_cross_many.py --scenario unsw_cv_test --target-fpr 0.01 --outdir out_check/unsw_cv_test --models rf
 
 # 2) CICIDS cross-day without calibration (pairs as in current outputs)
 python experiments/eval_cross_many.py --scenario cicids_cross_day --val monday --target-fpr 0.001 --outdir out/cicids_nocal --pairs thursday_web,friday_ddos --models rf,rf_cal,logreg,hgb,xgb
 
+# 2b) CICIDS cross-day repro-check (RF only, single pair, subsampled; writes to out_check/cicids_nocal)
+python experiments/eval_cross_many.py --scenario cicids_cross_day --val monday --target-fpr 0.001 --outdir out_check/cicids_nocal --pairs friday_ddos --models rf --subsample 50000
+
 # 3) CICIDS cross-day with isotonic calibration for all models
 python experiments/eval_cross_many.py --scenario cicids_cross_day --val monday --target-fpr 0.001 --outdir out/cicids_smooth --pairs thursday_web,friday_ddos --models rf,rf_cal,logreg,hgb,xgb --calibrate-all
+
+# 3b) CICIDS cross-day repro-check with isotonic calibration (RF+LogReg, single pair, subsampled; writes to out_check/cicids_smooth)
+python experiments/eval_cross_many.py --scenario cicids_cross_day --val monday --target-fpr 0.001 --outdir out_check/cicids_smooth --pairs friday_ddos --models rf,logreg --calibrate-all --subsample 50000
 
 # 4) Cross-dataset CIC(Tue+Wed)->UNSW(test), harmonized feature alignment
 python experiments/eval_cross_many.py --scenario cross_dataset --align harmonized --target-fpr 0.01 --outdir out/xdom_harm --models rf,logreg,mlp,hgb,xgb
 
+# 4b) Cross-dataset repro-check (RF only; writes to out_check/xdom_harm)
+python experiments/eval_cross_many.py --scenario cross_dataset --align harmonized --target-fpr 0.01 --outdir out_check/xdom_harm --models rf
+
 # 5) Train UNSW RF/XGB pipelines for McNemar test (saves to out/models)
 python experiments/train_unsw_models_for_mcnemar.py --out-dir out/models
+
+# 5b) Train UNSW RF/XGB pipelines for McNemar test (repro-check; writes to out_check/models)
+python experiments/train_unsw_models_for_mcnemar.py --out-dir out_check/models
 
 # 6) SHAP stability on UNSW (RF)
 python experiments/shap_stability_unsw.py --n-splits 5 --sample-size 800 --out-dir out/unsw_shap --topk 10 20
 
+# 6b) SHAP stability repro-check (fewer splits/sample; writes to out_check/unsw_shap)
+python experiments/shap_stability_unsw.py --n-splits 3 --sample-size 200 --out-dir out_check/unsw_shap --topk 10
+
 # 7) Feature selection ablation (UNSW, RF)
 python experiments/feature_selection_ablation.py --top-n 20 10
+
+# 7b) Feature selection ablation repro-check (UNSW, RF; writes to out_check/tables and out_check/figures)
+python experiments/feature_selection_ablation.py --top-n 10 --out-root out_check
 
 # 8) Figures used in write-up
 # 8a) Baseline vs models (requires results/table_3_3_baseline_metrics.csv)
 python experiments/plot_baseline_comparison.py --baseline-csv results/table_3_3_baseline_metrics.csv --unsw-test-csv out/unsw/tables/table_unsw_test.csv --cross-csv out/xdom_harm/tables/table_cross_dataset.csv --out out/fig_3_5_baseline_comparison.png
 
+# 8a-quick) Baseline vs models repro-check (writes figure to out_check/fig_3_5_baseline_comparison.png)
+python experiments/plot_baseline_comparison.py --baseline-csv results/table_3_3_baseline_metrics.csv --unsw-test-csv out/unsw/tables/table_unsw_test.csv --cross-csv out/xdom_harm/tables/table_cross_dataset.csv --out out_check/fig_3_5_baseline_comparison.png
+
 # 8b) F1 vs threshold: Dummy vs Logistic Regression on UNSW
 python experiments/plot_f1_threshold_dummy_vs_model.py --dataset unsw --model logreg --out out/fig_3_6_f1_threshold_dummy_vs_logreg_unsw.png
+
+# 8b-quick) F1 vs threshold repro-check (Dummy vs Logistic Regression on UNSW; writes figure to out_check/fig_3_6_f1_threshold_dummy_vs_logreg_unsw.png)
+python experiments/plot_f1_threshold_dummy_vs_model.py --dataset unsw --model logreg --out out_check/fig_3_6_f1_threshold_dummy_vs_logreg_unsw.png
 
 Результати експериментів
 
